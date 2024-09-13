@@ -26,7 +26,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,31 +71,46 @@ fun PlayerCard(player: Player, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .background(color = colorResource(R.color.purple_100))
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .align(Alignment.CenterHorizontally)
-
-            ) {
-                Image(
-                    painter = painterResource(player.image_resource),
-                    contentDescription = "",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .height(100.dp)
-                        .clip(RoundedCornerShape(25.dp))
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.Center,
+            PlayerCardFirstRow(
+                player = player,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text(text = player.number.toString())
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(text = player.name)
-            }
+            )
+            PlayerCardSecondRow(
+                player = player,
+                modifier = Modifier.Companion.align(Alignment.CenterHorizontally)
+            )
         }
+    }
+}
+
+@Composable
+private fun PlayerCardFirstRow(player: Player, modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = modifier
+            .padding(10.dp)
+
+    ) {
+        Image(
+            painter = painterResource(player.image_resource),
+            contentDescription = "",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .height(100.dp)
+                .clip(RoundedCornerShape(25.dp))
+        )
+    }
+}
+
+@Composable
+private fun PlayerCardSecondRow(player: Player, modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = modifier
+    ) {
+        Text(text = player.number.toString())
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text = player.name)
     }
 }
 
@@ -111,22 +125,37 @@ fun PlayerList(modifier: Modifier = Modifier) {
 
 @Composable
 fun PlayerListWithSearch(modifier: Modifier = Modifier) {
-    var searchCriteria by rememberSaveable { mutableStateOf("")  }
-    Column {
-        TextField(
-            value = searchCriteria,
-            onValueChange = { searchCriteria = it },
-            modifier = modifier
-        )
-        LazyColumn(modifier = modifier.fillMaxSize()) {
-            items(getPlayers(searchCriteria)) {
+    var nameSearch by rememberSaveable { mutableStateOf("") }
+    var numberSearch: Int? by rememberSaveable { mutableStateOf(null) }
+    Column(modifier = modifier) {
+        Column(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)) {
+            TextField(
+                value = nameSearch,
+                label = { Text(text = "Nom") },
+                onValueChange = { nameSearch = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp)
+            )
+            TextField(
+                value = (numberSearch ?: "").toString(),
+                label = { Text(text = "Numéro") },
+                onValueChange = { numberSearch = it.toIntOrNull() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp)
+            )
+        }
+
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(getPlayers(nameSearch, numberSearch)) {
                 PlayerCard(player = it)
             }
         }
     }
 }
 
-@Preview
+//@Preview
 @Composable
 fun PlayerCardPreview() {
     HockeyTheme {
@@ -134,7 +163,7 @@ fun PlayerCardPreview() {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun PlayerListPreview() {
     HockeyTheme {
@@ -144,7 +173,7 @@ fun PlayerListPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun PlayerListWithSearchPreview() {
+fun AppPreview() {
     HockeyTheme {
         PlayerListWithSearch()
     }

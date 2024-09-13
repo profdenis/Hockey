@@ -9,12 +9,21 @@ class Player(
     val image_resource: Int = R.drawable.nhl_logo
 )
 
-fun getPlayers(name: String? = null): List<Player> =
-    if (name == null)
-        getSamplePlayers()
-    else
-        getSamplePlayers().filter { it.name.lowercase().contains(name.lowercase()) }.toList()
+//fun getPlayers(name: String? = null, number: Int? = null): List<Player> {
+//    var players = getSamplePlayers()
+//    if (name != null)
+//        players = players.filter { it.name.lowercase().contains(name.lowercase()) }.toList()
+//    if (number != null)
+//        players = players.filter { it.number == number }.toList()
+//    return players
+//}
 
+fun getPlayers(name: String? = null, number: Int? = null): List<Player> =
+    getSamplePlayers()
+        .filter { player ->
+            (name == null || player.name.lowercase().contains(name.lowercase())) &&
+                    (number == null || player.number == number)
+        }
 
 fun getSamplePlayers() = listOf(
     Player(1, 66, "Mario Lemieux", R.drawable.mario_lemieux),
