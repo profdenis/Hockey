@@ -36,6 +36,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import denis.rinfret.hockey.data.HockeyPlayer
 import denis.rinfret.hockey.data.Player
 import denis.rinfret.hockey.data.getPlayers
 import denis.rinfret.hockey.data.getSamplePlayers
@@ -58,7 +59,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PlayerCard(player: Player, modifier: Modifier = Modifier) {
+fun PlayerCard(player: HockeyPlayer, modifier: Modifier = Modifier) {
     Card(
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(2.dp, colorResource(R.color.purple_500)),
@@ -84,7 +85,7 @@ fun PlayerCard(player: Player, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PlayerCardFirstRow(player: Player, modifier: Modifier = Modifier) {
+private fun PlayerCardFirstRow(player: HockeyPlayer, modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = modifier
@@ -92,7 +93,12 @@ private fun PlayerCardFirstRow(player: Player, modifier: Modifier = Modifier) {
 
     ) {
         Image(
-            painter = painterResource(player.image_resource),
+            painter = painterResource(
+                if (player.photoResources.isEmpty())
+                    R.drawable.nhl_logo
+                else
+                    player.photoResources[0]
+            ),
             contentDescription = "",
             contentScale = ContentScale.Fit,
             modifier = Modifier
@@ -103,7 +109,7 @@ private fun PlayerCardFirstRow(player: Player, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PlayerCardSecondRow(player: Player, modifier: Modifier = Modifier) {
+private fun PlayerCardSecondRow(player: HockeyPlayer, modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = modifier
