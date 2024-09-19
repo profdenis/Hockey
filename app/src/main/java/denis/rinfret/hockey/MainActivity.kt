@@ -4,40 +4,44 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import denis.rinfret.hockey.data.HockeyPlayer
-import denis.rinfret.hockey.data.Player
 import denis.rinfret.hockey.data.getPlayers
 import denis.rinfret.hockey.data.getSamplePlayers
 import denis.rinfret.hockey.ui.theme.HockeyTheme
@@ -58,73 +62,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun PlayerCard(player: HockeyPlayer, modifier: Modifier = Modifier) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(2.dp, colorResource(R.color.purple_500)),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = colorResource(R.color.purple_100))
-        ) {
-            PlayerCardFirstRow(
-                player = player,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            PlayerCardSecondRow(
-                player = player,
-                modifier = Modifier.Companion.align(Alignment.CenterHorizontally)
-            )
-        }
-    }
-}
-
-@Composable
-private fun PlayerCardFirstRow(player: HockeyPlayer, modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier
-            .padding(10.dp)
-
-    ) {
-        Image(
-            painter = painterResource(
-                if (player.photoResources.isEmpty())
-                    R.drawable.nhl_logo
-                else
-                    player.photoResources[0]
-            ),
-            contentDescription = "",
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .height(100.dp)
-                .clip(RoundedCornerShape(25.dp))
-        )
-    }
-}
-
-@Composable
-private fun PlayerCardSecondRow(player: HockeyPlayer, modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier
-    ) {
-        Text(text = player.number.toString())
-        Spacer(modifier = Modifier.width(10.dp))
-        Text(text = player.name)
-    }
-}
 
 @Composable
 fun PlayerList(modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(getSamplePlayers()) {
-            PlayerCard(player = it)
+            HockeyPlayerCard(player = it)
         }
     }
 }
@@ -155,17 +98,155 @@ fun PlayerListWithSearch(modifier: Modifier = Modifier) {
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(getPlayers(nameSearch, numberSearch)) {
-                PlayerCard(player = it)
+                HockeyPlayerCard(player = it)
             }
         }
     }
 }
 
+
+@Composable
+fun HockeyPlayerCard(player: HockeyPlayer, modifier: Modifier = Modifier) {
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable { isExpanded = !isExpanded },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Photo du joueur
+                player.photoResources.firstOrNull()?.let { photoResource ->
+                    Image(
+                        painter = painterResource(id = photoResource),
+                        contentDescription = "Photo de ${player.name}",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(end = 16.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                // Informations du joueur
+                Column {
+                    Text(
+                        text = player.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Numéro: ${player.number}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "Équipe: ${player.team}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "Position: ${player.position}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(16.dp))
+                // Informations supplémentaires du joueur
+
+
+                Row {
+                    Column {
+                        Text(
+                            text = "Âge: ${player.age}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Taille: ${player.height} m",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Poids: ${player.weight} kg",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Nationalité: ${player.nationality}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Column {
+
+                        Text(
+                            text = "Matchs joués: ${player.gamesPlayed}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Buts: ${player.goals}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Passes: ${player.assists}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Minutes de pénalité: ${player.penaltyMinutes}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Points totaux: ${player.totalPoints}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+                ImageCarousel(photoResources = player.photoResources)
+
+            }
+        }
+    }
+}
+
+@Composable
+fun ImageCarousel(photoResources: List<Int>) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(8.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyRow(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                itemsIndexed(photoResources) { index, photoResource ->
+                    Image(
+                        painter = painterResource(id = photoResource),
+                        contentDescription = "Player photo ${index + 1}",
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+        }
+    }
+}
 //@Preview
 @Composable
 fun PlayerCardPreview() {
     HockeyTheme {
-        PlayerCard(getSamplePlayers()[0])
+        HockeyPlayerCard(getSamplePlayers()[0])
     }
 }
 
