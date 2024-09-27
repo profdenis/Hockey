@@ -89,7 +89,9 @@ fun PlayerListWithSearch(modifier: Modifier = Modifier) {
             TextField(
                 value = (numberSearch ?: "").toString(),
                 label = { Text(text = "Numéro") },
-                onValueChange = { numberSearch = it.toIntOrNull() },
+                onValueChange = {
+                    numberSearch = if (it.isEmpty()) null else it.toIntOrNull() ?: numberSearch
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 20.dp, end = 20.dp)
@@ -121,96 +123,106 @@ fun HockeyPlayerCard(player: HockeyPlayer, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Photo du joueur
-                player.photoResources.firstOrNull()?.let { photoResource ->
-                    Image(
-                        painter = painterResource(id = photoResource),
-                        contentDescription = "Photo de ${player.name}",
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(end = 16.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                // Informations du joueur
-                Column {
-                    Text(
-                        text = player.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Numéro: ${player.number}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = "Équipe: ${player.team}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = "Position: ${player.position}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
+            PlayerBasicData(player)
 
             if (isExpanded) {
                 Spacer(modifier = Modifier.height(16.dp))
                 // Informations supplémentaires du joueur
 
 
-                Row {
-                    Column {
-                        Text(
-                            text = "Âge: ${player.age}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Taille: ${player.height} m",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Poids: ${player.weight} kg",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Nationalité: ${player.nationality}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    Column {
-
-                        Text(
-                            text = "Matchs joués: ${player.gamesPlayed}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Buts: ${player.goals}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Passes: ${player.assists}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Minutes de pénalité: ${player.penaltyMinutes}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Points totaux: ${player.totalPoints}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
+                PlayerDetails(player)
                 ImageCarousel(photoResources = player.photoResources)
 
             }
+        }
+    }
+}
+
+@Composable
+private fun PlayerBasicData(player: HockeyPlayer) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Photo du joueur
+        player.photoResources.firstOrNull()?.let { photoResource ->
+            Image(
+                painter = painterResource(id = photoResource),
+                contentDescription = "Photo de ${player.name}",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(end = 16.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        // Informations du joueur
+        Column {
+            Text(
+                text = player.name,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Numéro: ${player.number}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Équipe: ${player.team}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Position: ${player.position}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlayerDetails(player: HockeyPlayer) {
+    Row {
+        Column {
+            Text(
+                text = "Âge: ${player.age}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Taille: ${player.height} m",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Poids: ${player.weight} kg",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Nationalité: ${player.nationality}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Column {
+
+            Text(
+                text = "Matchs joués: ${player.gamesPlayed}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Buts: ${player.goals}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Passes: ${player.assists}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Minutes de pénalité: ${player.penaltyMinutes}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Points totaux: ${player.totalPoints}",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
@@ -242,6 +254,7 @@ fun ImageCarousel(photoResources: List<Int>) {
         }
     }
 }
+
 //@Preview
 @Composable
 fun PlayerCardPreview() {
