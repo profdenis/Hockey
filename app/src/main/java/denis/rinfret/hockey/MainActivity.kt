@@ -31,7 +31,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -77,32 +76,46 @@ fun PlayerListWithSearch(modifier: Modifier = Modifier) {
     var nameSearch by rememberSaveable { mutableStateOf("") }
     var numberSearch: Int? by rememberSaveable { mutableStateOf(null) }
     Column(modifier = modifier) {
-        Column(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)) {
-            TextField(
-                value = nameSearch,
-                label = { Text(text = "Nom") },
-                onValueChange = { nameSearch = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp)
-            )
-            TextField(
-                value = (numberSearch ?: "").toString(),
-                label = { Text(text = "Numéro") },
-                onValueChange = {
-                    numberSearch = if (it.isEmpty()) null else it.toIntOrNull() ?: numberSearch
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp)
-            )
-        }
+        SearchTextFields(
+            nameSearch = nameSearch,
+            onNameChange = { nameSearch = it },
+            numberSearch = numberSearch,
+            onNumberChange =
+            { numberSearch = if (it.isEmpty()) null else it.toIntOrNull() ?: numberSearch })
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(getPlayers(nameSearch, numberSearch)) {
                 HockeyPlayerCard(player = it)
             }
         }
+    }
+}
+
+@Composable
+private fun SearchTextFields(
+    nameSearch: String,
+    onNameChange: (String) -> Unit,
+    numberSearch: Int?,
+    onNumberChange: (String) -> Unit,
+
+    ) {
+    Column(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)) {
+        TextField(
+            value = nameSearch,
+            label = { Text(text = "Nom") },
+            onValueChange = onNameChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp)
+        )
+        TextField(
+            value = (numberSearch ?: "").toString(),
+            label = { Text(text = "Numéro") },
+            onValueChange = onNumberChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp)
+        )
     }
 }
 
