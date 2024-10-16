@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">Hockey</string>
+    <string name="name_label">Name</string>
+    <string name="number_label">Number</string>
+    <string name="team">Team: %1$s</string>
+    <string name="num_ro">Number: %1$s</string>
+    <string name="position">Position: %1$s</string>
+    <string name="age">Age: %1$s</string>
+    <string name="height">Height: %1$s m</string>
+    <string name="weight">Weight: %1$s kg</string>
+    <string name="nationality">Nationality: %1$s</string>
+    <string name="games_played">Games played: %1$s</string>
+    <string name="goals">Goals: %1$s</string>
+    <string name="passes">Passes: %1$s</string>
+    <string name="penalty_minutes">Penalty minutes: %1$s</string>
+    <string name="total_points">Total points: %1$s</string>
+    <string name="player_photo">Player photo %1$s</string>
+    <string name="first_photo">Photo of %1$s</string>
 </resources>

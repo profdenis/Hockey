@@ -31,12 +31,14 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,18 +46,47 @@ import denis.rinfret.hockey.data.HockeyPlayer
 import denis.rinfret.hockey.data.getPlayers
 import denis.rinfret.hockey.data.getSamplePlayers
 import denis.rinfret.hockey.ui.theme.HockeyTheme
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.res.Configuration
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBar
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            HockeyTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    PlayerListWithSearch(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            HockeyApp()
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun HockeyApp() {
+
+        HockeyTheme(darkTheme = true) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = {
+                    TopAppBar(title = {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.app_name)
+                            )
+                        }
+                    })
                 }
+            ) { innerPadding ->
+                PlayerListWithSearch(
+                    modifier = Modifier.padding(innerPadding)
+                )
             }
         }
     }
@@ -102,7 +133,7 @@ private fun SearchTextFields(
     Column(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)) {
         TextField(
             value = nameSearch,
-            label = { Text(text = "Nom") },
+            label = { Text(text = stringResource(R.string.name_label)) },
             onValueChange = onNameChange,
             modifier = Modifier
                 .fillMaxWidth()
@@ -110,7 +141,7 @@ private fun SearchTextFields(
         )
         TextField(
             value = (numberSearch ?: "").toString(),
-            label = { Text(text = "Numéro") },
+            label = { Text(text = stringResource(R.string.number_label)) },
             onValueChange = onNumberChange,
             modifier = Modifier
                 .fillMaxWidth()
@@ -122,7 +153,7 @@ private fun SearchTextFields(
 
 @Composable
 fun HockeyPlayerCard(player: HockeyPlayer, modifier: Modifier = Modifier) {
-    var isExpanded by rememberSaveable { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier
@@ -160,7 +191,7 @@ private fun PlayerBasicData(player: HockeyPlayer) {
         player.photoResources.firstOrNull()?.let { photoResource ->
             Image(
                 painter = painterResource(id = photoResource),
-                contentDescription = "Photo de ${player.name}",
+                contentDescription = stringResource(R.string.first_photo, player.name),
                 modifier = Modifier
                     .size(100.dp)
                     .padding(end = 16.dp),
@@ -177,15 +208,15 @@ private fun PlayerBasicData(player: HockeyPlayer) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Numéro: ${player.number}",
+                text = stringResource(R.string.num_ro, player.number),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Équipe: ${player.team}",
+                text = stringResource(R.string.team, player.team),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Position: ${player.position}",
+                text = stringResource(R.string.position, player.position),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -197,19 +228,19 @@ private fun PlayerDetails(player: HockeyPlayer) {
     Row {
         Column {
             Text(
-                text = "Âge: ${player.age}",
+                text = stringResource(R.string.age, player.age),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Taille: ${player.height} m",
+                text = stringResource(R.string.height, player.height),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Poids: ${player.weight} kg",
+                text = stringResource(R.string.weight, player.weight),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Nationalité: ${player.nationality}",
+                text = stringResource(R.string.nationality, player.nationality),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -217,23 +248,23 @@ private fun PlayerDetails(player: HockeyPlayer) {
         Column {
 
             Text(
-                text = "Matchs joués: ${player.gamesPlayed}",
+                text = stringResource(R.string.games_played, player.gamesPlayed),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Buts: ${player.goals}",
+                text = stringResource(R.string.goals, player.goals),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Passes: ${player.assists}",
+                text = stringResource(R.string.passes, player.assists),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Minutes de pénalité: ${player.penaltyMinutes}",
+                text = stringResource(R.string.penalty_minutes, player.penaltyMinutes),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Points totaux: ${player.totalPoints}",
+                text = stringResource(R.string.total_points, player.totalPoints),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -256,7 +287,7 @@ fun ImageCarousel(photoResources: List<Int>) {
                 itemsIndexed(photoResources) { index, photoResource ->
                     Image(
                         painter = painterResource(id = photoResource),
-                        contentDescription = "Player photo ${index + 1}",
+                        contentDescription = stringResource(R.string.player_photo, index + 1),
                         modifier = Modifier
                             .fillMaxHeight()
                             .aspectRatio(1f),
