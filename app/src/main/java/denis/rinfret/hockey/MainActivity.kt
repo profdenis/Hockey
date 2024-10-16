@@ -60,13 +60,12 @@ class MainActivity : ComponentActivity() {
             HockeyApp()
         }
     }
-
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HockeyApp() {
+    // ici, je force l'utilisation du le thème sombre, ce qu'on ne devrait pas faire normalement
     HockeyTheme(darkTheme = true) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -92,15 +91,6 @@ private fun HockeyApp() {
 }
 
 @Composable
-fun PlayerList(modifier: Modifier = Modifier) {
-    LazyColumn(modifier = modifier.fillMaxSize()) {
-        items(getSamplePlayers()) {
-            HockeyPlayerCard(player = it)
-        }
-    }
-}
-
-@Composable
 fun PlayerListWithSearch(modifier: Modifier = Modifier) {
     var nameSearch by rememberSaveable { mutableStateOf("") }
     var numberSearch: Int? by rememberSaveable { mutableStateOf(null) }
@@ -117,23 +107,15 @@ fun PlayerListWithSearch(modifier: Modifier = Modifier) {
             { numberSearch = if (it.isEmpty()) null else it.toIntOrNull() ?: numberSearch })
 
         if (isLandscape) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                LazyColumn(modifier = Modifier.fillMaxWidth(0.5f)) {
-                    items(
-                        getPlayers(
-                            nameSearch,
-                            numberSearch
-                        ).filterIndexed { i, _ -> i % 2 == 0 }) {
-                        HockeyPlayerCard(player = it)
-                    }
-                }
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(
-                        getPlayers(
-                            nameSearch,
-                            numberSearch
-                        ).filterIndexed { i, _ -> i % 2 == 1 }) {
-                        HockeyPlayerCard(player = it)
+
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(
+                    getPlayers(nameSearch, numberSearch).chunked(2)
+                ) { chunk ->
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        HockeyPlayerCard(player = chunk.first(), Modifier.fillMaxWidth(0.5f))
+                        if (chunk.size == 2)
+                            HockeyPlayerCard(player = chunk.last())
                     }
                 }
             }
@@ -173,7 +155,6 @@ private fun SearchTextFields(
         )
     }
 }
-
 
 
 @Composable
@@ -324,19 +305,11 @@ fun ImageCarousel(photoResources: List<Int>) {
     }
 }
 
-//@Preview
+@Preview
 @Composable
 fun PlayerCardPreview() {
     HockeyTheme {
         HockeyPlayerCard(getSamplePlayers()[0])
-    }
-}
-
-//@Preview(showBackground = true)
-@Composable
-fun PlayerListPreview() {
-    HockeyTheme {
-        PlayerList()
     }
 }
 
