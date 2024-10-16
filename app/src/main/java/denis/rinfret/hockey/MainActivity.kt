@@ -1,5 +1,6 @@
 package denis.rinfret.hockey
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,10 +25,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,20 +41,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import denis.rinfret.hockey.data.HockeyPlayer
 import denis.rinfret.hockey.data.getPlayers
 import denis.rinfret.hockey.data.getSamplePlayers
 import denis.rinfret.hockey.ui.theme.HockeyTheme
-import android.content.res.Configuration
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.ui.platform.LocalConfiguration
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,7 +76,8 @@ private fun HockeyApp() {
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = stringResource(R.string.app_name)
+                                text = stringResource(R.string.app_name),
+                                style = MaterialTheme.typography.headlineMedium
                             )
                         }
                     })
@@ -136,7 +136,7 @@ private fun SearchTextFields(
     numberSearch: Int?,
     onNumberChange: (String) -> Unit
 ) {
-    Row {
+    Row(modifier = Modifier.padding(top = 10.dp)) {
         TextField(
             value = nameSearch,
             label = { Text(text = stringResource(R.string.name_label)) },
@@ -209,8 +209,7 @@ private fun PlayerBasicData(player: HockeyPlayer) {
         Column {
             Text(
                 text = player.name,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineSmall
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
