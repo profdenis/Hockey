@@ -46,14 +46,11 @@ import denis.rinfret.hockey.data.HockeyPlayer
 import denis.rinfret.hockey.data.getPlayers
 import denis.rinfret.hockey.data.getSamplePlayers
 import denis.rinfret.hockey.ui.theme.HockeyTheme
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.res.Configuration
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBar
-import java.util.Locale
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.platform.LocalConfiguration
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,15 +61,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun HockeyApp() {
 
-        HockeyTheme(darkTheme = true) {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                topBar = {
-                    TopAppBar(title = {
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HockeyApp() {
+    HockeyTheme(darkTheme = true) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight / 2,
+                    title = {
                         Row(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
@@ -82,16 +82,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     })
-                }
-            ) { innerPadding ->
-                PlayerListWithSearch(
-                    modifier = Modifier.padding(innerPadding)
-                )
             }
+        ) { innerPadding ->
+            PlayerListWithSearch(
+                modifier = Modifier.padding(innerPadding)
+            )
         }
     }
 }
-
 
 @Composable
 fun PlayerList(modifier: Modifier = Modifier) {
@@ -106,6 +104,10 @@ fun PlayerList(modifier: Modifier = Modifier) {
 fun PlayerListWithSearch(modifier: Modifier = Modifier) {
     var nameSearch by rememberSaveable { mutableStateOf("") }
     var numberSearch: Int? by rememberSaveable { mutableStateOf(null) }
+
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Column(modifier = modifier) {
         SearchTextFields(
             nameSearch = nameSearch,
@@ -114,9 +116,32 @@ fun PlayerListWithSearch(modifier: Modifier = Modifier) {
             onNumberChange =
             { numberSearch = if (it.isEmpty()) null else it.toIntOrNull() ?: numberSearch })
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(getPlayers(nameSearch, numberSearch)) {
-                HockeyPlayerCard(player = it)
+        if (isLandscape) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                LazyColumn(modifier = Modifier.fillMaxWidth(0.5f)) {
+                    items(
+                        getPlayers(
+                            nameSearch,
+                            numberSearch
+                        ).filterIndexed { i, _ -> i % 2 == 0 }) {
+                        HockeyPlayerCard(player = it)
+                    }
+                }
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(
+                        getPlayers(
+                            nameSearch,
+                            numberSearch
+                        ).filterIndexed { i, _ -> i % 2 == 1 }) {
+                        HockeyPlayerCard(player = it)
+                    }
+                }
+            }
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(getPlayers(nameSearch, numberSearch)) {
+                    HockeyPlayerCard(player = it)
+                }
             }
         }
     }
@@ -127,17 +152,16 @@ private fun SearchTextFields(
     nameSearch: String,
     onNameChange: (String) -> Unit,
     numberSearch: Int?,
-    onNumberChange: (String) -> Unit,
-
-    ) {
-    Column(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)) {
+    onNumberChange: (String) -> Unit
+) {
+    Row {
         TextField(
             value = nameSearch,
             label = { Text(text = stringResource(R.string.name_label)) },
             onValueChange = onNameChange,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp)
+                .fillMaxWidth(0.67f)
+                .padding(start = 20.dp)
         )
         TextField(
             value = (numberSearch ?: "").toString(),
@@ -145,10 +169,11 @@ private fun SearchTextFields(
             onValueChange = onNumberChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp)
+                .padding(start = 5.dp, end = 20.dp)
         )
     }
 }
+
 
 
 @Composable
@@ -318,7 +343,5 @@ fun PlayerListPreview() {
 @Preview(showBackground = true)
 @Composable
 fun AppPreview() {
-    HockeyTheme {
-        PlayerListWithSearch()
-    }
+    HockeyApp()
 }
