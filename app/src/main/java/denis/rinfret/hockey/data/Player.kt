@@ -1,6 +1,11 @@
 package denis.rinfret.hockey.data
 
+import android.content.Context
+import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import denis.rinfret.hockey.R
+import java.io.File
 
 
 data class HockeyPlayer(
@@ -27,6 +32,17 @@ data class HockeyPlayer(
 
 fun getPlayers(name: String? = null, number: Int? = null): List<HockeyPlayer> =
     getSamplePlayers()
+        .filter { player ->
+            (name == null || player.name.lowercase().contains(name.lowercase())) &&
+                    (number == null || player.number == number)
+        }
+
+fun filterPlayers(
+    source: List<HockeyPlayer>,
+    name: String? = null,
+    number: Int? = null
+): List<HockeyPlayer> =
+    source
         .filter { player ->
             (name == null || player.name.lowercase().contains(name.lowercase())) &&
                     (number == null || player.number == number)
@@ -285,4 +301,31 @@ fun getSamplePlayers(): List<HockeyPlayer> {
             penaltyMinutes = 400
         )
     )
+}
+
+fun Context.saveToFile(players: List<HockeyPlayer>, filename: String) {
+    try {
+        val file = File(this.filesDir, filename)
+        file.writeText(Gson().toJson(players))
+    } catch (e: Exception) {
+        Log.e("FileIO", "Erreur lors de l'écriture du fichier", e)
+    }
+}
+
+fun Context.readPlayersFromFile(filename: String): List<HockeyPlayer> {
+    val file = File(this.filesDir, filename)
+    return if (file.exists()) {
+        try {
+            val jsonString = file.readText()
+            Log.i("jsonString", jsonString)
+
+            val playerListType = object : TypeToken<List<HockeyPlayer>>() {}.type
+            Gson().fromJson(jsonString, playerListType)
+        } catch (e: Exception) {
+            Log.e("FileIO", "Erreur lors de la lecture du fichier", e)
+            emptyList()
+        }
+    } else {
+        emptyList()
+    }
 }

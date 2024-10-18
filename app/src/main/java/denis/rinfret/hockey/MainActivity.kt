@@ -23,9 +23,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,13 +44,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import denis.rinfret.hockey.data.HockeyPlayer
-import denis.rinfret.hockey.data.getPlayers
+import denis.rinfret.hockey.data.filterPlayers
 import denis.rinfret.hockey.data.getSamplePlayers
+import denis.rinfret.hockey.data.readPlayersFromFile
+import denis.rinfret.hockey.data.saveToFile
 import denis.rinfret.hockey.ui.theme.HockeyTheme
 
 class MainActivity : ComponentActivity() {
@@ -103,8 +109,14 @@ fun PlayerListWithSearch(modifier: Modifier = Modifier) {
             { numberSearch = if (it.isEmpty()) null else it.toIntOrNull() ?: numberSearch }
         )
 
+        val context = LocalContext.current
+        var playerList = context.readPlayersFromFile(stringResource(R.string.players_json))
+        if (playerList.isEmpty()) {
+            playerList = getSamplePlayers()
+            context.saveToFile(playerList, stringResource(R.string.players_json))
+        }
         LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 400.dp)) {
-            items(getPlayers(nameSearch, numberSearch)) { player ->
+            items(filterPlayers(playerList, nameSearch, numberSearch)) { player ->
                 HockeyPlayerCard(player = player)
             }
         }
@@ -170,6 +182,7 @@ fun HockeyPlayerCard(player: HockeyPlayer, modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PlayerBasicData(player: HockeyPlayer) {
     Row(
@@ -189,10 +202,19 @@ private fun PlayerBasicData(player: HockeyPlayer) {
 
         // Informations du joueur
         Column {
-            Text(
-                text = player.name,
-                style = MaterialTheme.typography.headlineSmall
-            )
+            Row {
+                if (player.isVeteran()) {
+                    Icon(
+                        Icons.Outlined.Star,
+                        stringResource(R.string.veteran),
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                }
+                Text(
+                    text = player.name,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.num_ro, player.number),

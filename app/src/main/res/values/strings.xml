@@ -16,4 +16,6 @@
     <string name="total_points">Total points: %1$s</string>
     <string name="player_photo">Player photo %1$s</string>
     <string name="first_photo">Photo of %1$s</string>
+    <string name="players_json">players.json</string>
+    <string name="veteran">Veteran</string>
 </resources>
