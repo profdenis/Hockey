@@ -1,6 +1,5 @@
 package denis.rinfret.hockey
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,9 +18,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,7 +63,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HockeyApp() {
-    // ici, je force l'utilisation du le thème sombre, ce qu'on ne devrait pas faire normalement
+    // ici, je force l'utilisation du le thème sombre ou clair, ce qu'on ne devrait pas faire normalement
     HockeyTheme(darkTheme = true) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -95,35 +94,18 @@ fun PlayerListWithSearch(modifier: Modifier = Modifier) {
     var nameSearch by rememberSaveable { mutableStateOf("") }
     var numberSearch: Int? by rememberSaveable { mutableStateOf(null) }
 
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
     Column(modifier = modifier) {
         SearchTextFields(
             nameSearch = nameSearch,
             onNameChange = { nameSearch = it },
             numberSearch = numberSearch,
             onNumberChange =
-            { numberSearch = if (it.isEmpty()) null else it.toIntOrNull() ?: numberSearch })
+            { numberSearch = if (it.isEmpty()) null else it.toIntOrNull() ?: numberSearch }
+        )
 
-        if (isLandscape) {
-
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(
-                    getPlayers(nameSearch, numberSearch).chunked(2)
-                ) { chunk ->
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        HockeyPlayerCard(player = chunk.first(), Modifier.fillMaxWidth(0.5f))
-                        if (chunk.size == 2)
-                            HockeyPlayerCard(player = chunk.last())
-                    }
-                }
-            }
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(getPlayers(nameSearch, numberSearch)) {
-                    HockeyPlayerCard(player = it)
-                }
+        LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 400.dp)) {
+            items(getPlayers(nameSearch, numberSearch)) { player ->
+                HockeyPlayerCard(player = player)
             }
         }
     }
