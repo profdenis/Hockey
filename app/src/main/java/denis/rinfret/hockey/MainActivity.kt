@@ -47,11 +47,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -240,18 +240,9 @@ private fun PlayerBasicData(player: HockeyPlayer) {
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.num_ro, player.number),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.team, player.team),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.position, player.position),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            PlayerDataRow(R.string.number, player.number.toString())
+            PlayerDataRow(R.string.team, player.team)
+            PlayerDataRow(R.string.position, player.position)
         }
     }
 }
@@ -260,47 +251,35 @@ private fun PlayerBasicData(player: HockeyPlayer) {
 private fun PlayerDetails(player: HockeyPlayer) {
     Row {
         Column {
-            Text(
-                text = stringResource(R.string.age, player.age),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.height, player.height),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.weight, player.weight),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.nationality, player.nationality),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            PlayerDataRow(R.string.age, stringResource(R.string.years, player.age))
+            PlayerDataRow(R.string.height, "${player.height} m")
+            PlayerDataRow(R.string.weight, "${player.weight} kg")
+            PlayerDataRow(R.string.nationality, player.nationality)
         }
         Spacer(modifier = Modifier.weight(1f))
         Column {
-
-            Text(
-                text = stringResource(R.string.games_played, player.gamesPlayed),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.goals, player.goals),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.passes, player.assists),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.penalty_minutes, player.penaltyMinutes),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = stringResource(R.string.total_points, player.totalPoints),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            PlayerDataRow(R.string.games_played, player.gamesPlayed.toString())
+            PlayerDataRow(R.string.goals, player.goals.toString())
+            PlayerDataRow(R.string.assists, player.assists.toString())
+            PlayerDataRow(R.string.penalty_minutes, player.penaltyMinutes.toString())
+            PlayerDataRow(R.string.total_points, player.totalPoints.toString())
         }
+    }
+}
+
+@Composable
+private fun PlayerDataRow(labelResource: Int, data: String) {
+    Row {
+        Text(
+            text = stringResource(labelResource),
+            style = MaterialTheme.typography.bodyMedium,
+            fontStyle = FontStyle.Italic
+        )
+        Text(
+            text = data,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(start = 4.dp)
+        )
     }
 }
 

@@ -3,20 +3,22 @@
     <string name="app_name">Hockey</string>
     <string name="name_label">Nom</string>
     <string name="number_label">Numéro</string>
-    <string name="team">Équipe: %1$s</string>
-    <string name="num_ro">Numéro: %1$s</string>
-    <string name="position">Position: %1$s</string>
-    <string name="age">Âge: %1$s</string>
-    <string name="height">Taille: %1$s m</string>
-    <string name="weight">Poids: %1$s kg</string>
-    <string name="nationality">Nationalité: %1$s</string>
-    <string name="games_played">Matchs joués: %1$s</string>
-    <string name="goals">Buts: %1$s</string>
-    <string name="passes">Passes: %1$s</string>
-    <string name="penalty_minutes">Minutes de pénalité: %1$s</string>
-    <string name="total_points">Points totaux: %1$s</string>
+    <string name="team">Équipe:</string>
+    <string name="number">Number:</string>
+    <string name="position">Position:</string>
+    <string name="age">Âge :</string>
+    <string name="years">%1$s ans</string>
+    <string name="height">Taille:</string>
+    <string name="weight">Poids:</string>
+    <string name="nationality">Nationalité:</string>
+    <string name="games_played">Matchs joués:</string>
+    <string name="goals">Buts:</string>
+    <string name="assists">Passes:</string>
+    <string name="penalty_minutes">Minutes de pénalité:</string>
+    <string name="total_points">Points totaux:</string>
     <string name="player_photo">Player photo %1$s</string>
     <string name="first_photo">Photo de %1$s</string>
     <string name="players_json">players.json</string>
     <string name="veteran">Vétéran</string>
+
 </resources>
