@@ -18,7 +18,8 @@
     <string name="total_points">Points totaux:</string>
     <string name="player_photo">Player photo %1$s</string>
     <string name="first_photo">Photo de %1$s</string>
-    <string name="players_json">players.json</string>
     <string name="veteran">Vétéran</string>
+    <string name="player_not_found">Joueur introuvable!</string>
+    <string name="back">Retour</string>
 
 </resources>

@@ -1,12 +1,12 @@
 package denis.rinfret.hockey
 
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,13 +20,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
@@ -48,13 +47,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
 import denis.rinfret.hockey.data.HockeyPlayer
 import denis.rinfret.hockey.data.filterPlayers
 import denis.rinfret.hockey.data.getSamplePlayers
@@ -158,55 +157,59 @@ private fun SearchTextFields(
 
 
 @Composable
-fun HockeyPlayerCard(player: HockeyPlayer, modifier: Modifier = Modifier) {
-    var showPopup by remember { mutableStateOf(false) }
+fun HockeyPlayerCard(
+    player: HockeyPlayer,
+    expandable: Boolean = false,
+    clickable: Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(expandable) }
+
+    val context = LocalContext.current
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .clickable { showPopup = true },
+            .clickable {
+                if (clickable) {
+                    val intent = Intent(context, PlayerActivity::class.java)
+                    intent.putExtra("player", player)
+                    context.startActivity(intent)
+                }
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
+        val configuration = LocalConfiguration.current
+        val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            PlayerBasicData(player)
 
-            if (showPopup) {
-                Popup(
-                    onDismissRequest = { showPopup = false },
-                    alignment = Alignment.Center
-                ) {
+            // la mise en page a besoin d'être améliorée
+            if (expanded) {
 
-                    Column(
-                        modifier = Modifier
-                            .width(400.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .border(
-                                4.dp,
-                                MaterialTheme.colorScheme.onSecondaryContainer,
-                                RoundedCornerShape(5.dp)
-                            )
-                            .padding(16.dp)
-                    ) {
+                if (isLandscape) {
+                    Row {
                         PlayerBasicData(player)
-                        Spacer(modifier = Modifier.height(16.dp))
                         PlayerDetails(player)
-                        ImageCarousel(photoResources = player.photoResources)
                     }
+                    HorizontalImageCarousel(photoResources = player.photoResources)
+                } else {
+                    PlayerBasicData(player)
+                    PlayerDetails(player)
+                    VerticalImageCarousel(photoResources = player.photoResources)
                 }
+            } else {
+                PlayerBasicData(player)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PlayerBasicData(player: HockeyPlayer) {
     Row(
@@ -250,6 +253,7 @@ private fun PlayerBasicData(player: HockeyPlayer) {
 @Composable
 private fun PlayerDetails(player: HockeyPlayer) {
     Row {
+        Spacer(modifier = Modifier.weight(1f))
         Column {
             PlayerDataRow(R.string.age, stringResource(R.string.years, player.age))
             PlayerDataRow(R.string.height, "${player.height} m")
@@ -284,20 +288,48 @@ private fun PlayerDataRow(labelResource: Int, data: String) {
 }
 
 @Composable
-fun ImageCarousel(photoResources: List<Int>) {
+fun VerticalImageCarousel(photoResources: List<Int>) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .height(200.dp)
             .padding(8.dp)
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.secondaryContainer)
+            modifier = Modifier.fillMaxSize()
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                itemsIndexed(photoResources) { index, photoResource ->
+                    Image(
+                        painter = painterResource(id = photoResource),
+                        contentDescription = stringResource(R.string.player_photo, index + 1),
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun HorizontalImageCarousel(photoResources: List<Int>) {
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .height(200.dp)
+            .padding(8.dp)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
             LazyRow(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.align(Alignment.Center),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 itemsIndexed(photoResources) { index, photoResource ->

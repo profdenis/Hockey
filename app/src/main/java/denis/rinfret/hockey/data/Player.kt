@@ -1,13 +1,15 @@
 package denis.rinfret.hockey.data
 
 import android.content.Context
+import android.os.Parcelable
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import denis.rinfret.hockey.R
+import kotlinx.parcelize.Parcelize
 import java.io.File
 
-
+@Parcelize
 data class HockeyPlayer(
     val id: Int,
     val name: String,
@@ -23,7 +25,7 @@ data class HockeyPlayer(
     val assists: Int,
     val penaltyMinutes: Int,
     val photoResources: List<Int> = listOf(R.drawable.nhl_logo)// Liste des ID de ressources pour les photos
-) {
+) : Parcelable {
     val totalPoints: Int
         get() = goals + assists
 
